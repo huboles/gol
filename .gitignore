@@ -3,5 +3,7 @@
 !README
 !LICENSE
 !Makefile
+!src/
+!test/
 !*.c
 !*.h
