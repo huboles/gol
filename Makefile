@@ -1,5 +1,5 @@
 NAME = gol
-VER ?= 0.1.0
+VER ?= 0.2.2
 
 SHELL = /bin/bash
 
@@ -15,7 +15,7 @@ DOCDIR ?= $(USRDIR)/share/doc/$(NAME)
 SRCDIR ?= ./src
 OBJDIR ?= ./obj
 BUILD ?= ./build
-TESTDIR ?= ./test
+TESTDIR ?= ./tests
 TESTBIN ?= $(TESTDIR)/bin
 
 BIN ?= $(BUILD)/$(NAME)
@@ -23,7 +23,7 @@ SRC ?= $(wildcard $(SRCDIR)/*.c)
 HDR ?= $(wildcard $(SRCDIR)/*.h)
 OBJ ?= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 TEST ?= $(wildcard $(TESTDIR)/*.c)
-TESTS ?= $(patsubst $(TESTDIR)/%.c, $(TESTBIN)/%, $(TESTS))
+TESTS ?= $(patsubst $(TESTDIR)/%.c, $(TESTBIN)/%, $(TEST))
 
 TAR ?= $(BUILD)/$(NAME)-$(VERSION).tar.gz
 TARSUM ?= $(BUILD)/$(NAME)-$(VERSION)-tar.hash
@@ -38,8 +38,8 @@ AR ?= tar
 HASH ?= sha256sum
 CFLAGS += -O2 -pipe
 WARNINGS ?= -Wall -Wextra -Wpedantic
-CPPFLAGS += -I . 
-LDFLAGS += -L .
+CPPFLAGS += -I $(SRCDIR)
+LDFLAGS += -L $(SRCDIR)
 LDLIBS +=
 FLAGS ?= $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(LDFLAGS) $(LDLIBS)
 
@@ -70,7 +70,7 @@ tar: $(SRC) $(HDR) $(MAN) $(DOC)
 $(BIN): $(OBJ)
 	$(CC) $(OBJ) $(FLAGS) -o $(BIN)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/$(HDR)  
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(HDR)  
 	$(CC) -c $(FLAGS) $< -o $@
 
 clean:
@@ -80,7 +80,7 @@ debug: CFLAGS += -ggdb3 -Og
 debug: $(BIN)
 
 $(TESTBIN)/%: $(TESTDIR)/%.c
-	$(CC) $(FLAGS) $< $(OBJS) -o $@
+	$(CC) $(FLAGS) $< $(filter-out $(OBJDIR)/$(NAME).o,$(OBJ)) -o $@
 
 test: $(BIN) $(TESTBIN) $(TESTS)
 	for test in $(TESTS); do ./$$test; done
