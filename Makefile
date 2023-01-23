@@ -15,27 +15,20 @@ DOCDIR ?= $(USRDIR)/share/doc/$(NAME)
 SRCDIR ?= ./src
 OBJDIR ?= ./obj
 BUILD ?= ./build
-TESTDIR ?= ./tests
-TESTBIN ?= $(TESTDIR)/bin
 
 BIN ?= $(BUILD)/$(NAME)
 SRC ?= $(wildcard $(SRCDIR)/*.c) 
 HDR ?= $(wildcard $(SRCDIR)/*.h)
 OBJ ?= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
-TEST ?= $(wildcard $(TESTDIR)/*.c)
-TESTS ?= $(patsubst $(TESTDIR)/%.c, $(TESTBIN)/%, $(TEST))
 
-TAR ?= $(BUILD)/$(NAME)-$(VERSION).tar.gz
-TARSUM ?= $(BUILD)/$(NAME)-$(VERSION)-tar.hash
-BINSUM ?= $(BUILD)/$(NAME)-$(VERSION).hash
+TAR ?= $(BUILD)/$(NAME)-$(VER).tar.gz
 
 MAN ?= $(SRCDIR)/$(NAME).1
-MANPAGE ?= $(BUILD)/$(MAN).gz
+MANPAGE ?= $(patsubst $(SRCDIR)/%.1,$(BUILD)/%.1.gz,$(MAN))
 DOC ?= README LICENSE
 
 CC ?= gcc
-AR ?= tar
-HASH ?= sha256sum
+ZIP ?= gzip
 CFLAGS += -O2 -pipe
 WARNINGS ?= -Wall -Wextra -Wpedantic
 CPPFLAGS += -I $(SRCDIR)
@@ -46,16 +39,15 @@ FLAGS ?= $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(LDFLAGS) $(LDLIBS)
 all: $(BIN)
 
 release: CFLAGS = -O3 -pipe -DNDEBUG -DDONT_USE_VOL
-release: clean
-release: tar
 release: $(BIN)
-	$(HASH) $(BIN) > $(BINSUM)
 
-install: $(BIN) $(MAN) $(DOC)
+install: $(BIN) $(MANPAGE) $(DOC)
 	-mkdir -p $(BINDIR)
-	install -CDm 755 -t $(BINDIR) $(BIN)
+	cp $(BIN) $(BINDIR)
+	chmod 755 $(BINDIR)/$(patsubst $(BUILD)/%,%,$(BIN))
 	-mkdir -p $(MANDIR)
-	install -CDm 644 -t $(MANDIR) $(MANPAGE) 
+	cp $(MANPAGE) $(MANDIR)
+	chmod 644 $(MANDIR)/$(patsubst $(BUILD)/%,%,$(MANPAGE))
 	-mkdir -p $(DOCDIR)
 	install -CDm 644 -t $(DOCDIR) $(DOC) 
 
@@ -63,9 +55,7 @@ uninstall:
 	-rm -rf $(BINDIR)/$(BIN) $(MANDIR)/$(MANPAGE) $(DOCDIR)
 
 tar: $(SRC) $(HDR) $(MAN) $(DOC)
-	-rm $(TAR) $(HASHSUM)
-	$(AR) -c -f - $(SRC) $(HDR) $(MAN) $(DOC) | gzip > $(TAR)
-	$(HASH) $(TAR) > $(TARSUM)
+	tar -I $(ZIP) -cvf $(TAR) $(SRC) $(HDR) $(MAN) $(DOC)
 
 $(BIN): $(OBJ)
 	$(CC) $(OBJ) $(FLAGS) -o $(BIN)
@@ -79,13 +69,10 @@ clean:
 debug: CFLAGS += -ggdb3 -Og
 debug: $(BIN)
 
-$(TESTBIN)/%: $(TESTDIR)/%.c
-	$(CC) $(FLAGS) $< $(filter-out $(OBJDIR)/$(NAME).o,$(OBJ)) -o $@
+$(MANPAGE): $(MAN)
+	$(ZIP) -c $(MAN) > $(MANPAGE)
 
-test: $(BIN) $(TESTBIN) $(TESTS)
-	for test in $(TESTS); do ./$$test; done
-
-$(SRCDIR) $(OBJDIR) $(BUILDIR) $(TESTDIR) $(TESTBIN):
+$(SRCDIR) $(OBJDIR) $(BUILDIR):
 	mkdir $@
 
 .PHONY: all release clean install tar uninstall debug test

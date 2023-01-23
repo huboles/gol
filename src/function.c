@@ -61,10 +61,11 @@ void help(){
     printf("Usage:\n");
     printf("\tgol [OPTIONS]");
     printf("Option flags:\n");
-    printf("\t-x [INT]\tnumber of columns, default: 90\n");
-    printf("\t-y [INT]\tnumber of rows, default: 30\n");
-    printf("\t-a \tascii only mode\n");
+    printf("\t-x [INT] number of columns, default: 90\n");
+    printf("\t-y [INT] number of rows, default: 30\n");
+    printf("\t-a\tascii only mode\n");
     printf("\t-t [ms]\tamount of time to wait in ms between generations, default: 75000\n");
+    printf("\t-w [INT] initial distribution weight\n");
     printf("\t-V\tversion information\n");
     printf("\t-h\tshow this help\n");
 

@@ -21,14 +21,30 @@ int updatemap(struct map map){
     int n = 0;
     struct map tmp = newmap();
 
-    for (int r = 1; r < row-1; r++){
-        for(int c = 1; c < col-1; c++){
+    for (int r = 0; r < row-1; r++){
+        for(int c = 0; c < col-1; c++){
             int state = checkstate(map,r,c);
             tmp.line[r].cell[c].state = state;
             tmp.line[r].cell[c].cellchar = statechar(state);
             strncpy(tmp.line[r].cell[c].pixel,statecell(state),4);
             if (state > DEAD){ n++; }
         }
+    }
+
+    for (int r = 0; r < row -1; r++){
+        int state = checkstate(map,r,0);
+        tmp.line[r].cell[col-1].state = state;
+        tmp.line[r].cell[col-1].cellchar = statechar(state);
+        strncpy(tmp.line[r].cell[col-1].pixel,statecell(state),4);
+        if (state > DEAD){ n++; }
+    }
+
+    for (int c = 0; c < col -1; c++){
+        int state = checkstate(map,0,c);
+        tmp.line[row-1].cell[c].state = state;
+        tmp.line[row-1].cell[c].cellchar = statechar(state);
+        strncpy(tmp.line[row-1].cell[c].pixel,statecell(state),4);
+        if (state > DEAD){ n++; }
     }
 
     for(int r = 0; r < row; r++){

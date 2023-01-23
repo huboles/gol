@@ -1,0 +1,34 @@
+gol - Conway's Game Of Life
+
+Version: 0.2.2
+
+gol is an implementation of Conway's Game of life that runs in a terminal emulator.
+There are two states: alive and dead, and each generation uses the number of neighbors
+to determine the state of each cell. A dead cell surrounded by exactly 3 live cells will
+spawn. A live cell will stay alive if it is surrounded by 2 or 3 other cells, otherwise it
+dies. Each generation uses the last generations map to create the next map.
+
+
+Installation:
+
+Download and extract source:
+    $ curl "https://download.huck.website/gol-[VERSION].tar.gz > gol.tar.gz
+    $ tar -xzvf gol.tar.gz
+    $ cd gol.tar.gz
+
+Build and install:
+    $ make && sudo make install
+
+
+Usage:
+
+    Run gol with base parameters:
+        $ gol
+    Change size of map:
+        $ gol -x [COLUMNS] -y [ROWS]
+    Use ascii only mode:
+        $ gol -a
+    Change initial distribution weight:
+        $ gol -w [INT]
+E
+
