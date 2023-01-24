@@ -66,8 +66,8 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(HDR)
 clean:
 	-rm -f $(BUILD)/* $(OBJDIR)/*
 
-debug: CFLAGS += -ggdb3 -Og
-debug: $(BIN)
+debug: $(SRC)
+	$(CC) $(SRC) $(FLAGS) -ggdb3 -Og -pipe -o $(BIN)-debug
 
 $(MANPAGE): $(MAN)
 	$(ZIP) -c $(MAN) > $(MANPAGE)

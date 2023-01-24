@@ -15,7 +15,7 @@
 enum {DIE = -1, DEAD = 0, ALIVE = 1, SPAWN = 1 << 1};
 
 /* error codes */
-enum {NO_ERR = 0, FLAG_ERR = 1, STATE_ERR = 1 << 1, COLOR_ERR = 1 << 2};
+enum {NO_ERR = 0, FLAG_ERR = 1, STATE_ERR = 1 << 1, COLOR_ERR = 1 << 2, FILE_ERR = 1 << 3};
 
 struct cell {
     char    pixel[4];
@@ -39,6 +39,7 @@ void printdisplay(struct map);
 
 /* map.c */
 void genmap(struct map);
+void mapfile(struct map, char *);
 int updatemap(struct map);
 int numneighbor(struct map,int,int);
 int checkstate(struct map,int,int);

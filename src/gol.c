@@ -1,6 +1,7 @@
 #include "gol.h"
 
-int  row,col,step,ascii,weight;
+int  row,col,step,ascii,weight,file;
+char *filename;
 
 int main(int argc, char *argv[]){
     srand(time(NULL));
@@ -11,11 +12,17 @@ int main(int argc, char *argv[]){
     step = 75000;
     ascii = 0;
     weight = 5;
+    file = 0;
 
+    filename = malloc(sizeof(char) * MAXLINE);
     parseopts(argc,argv);
-
     struct map map = newmap();
-    genmap(map);
+
+    if (file) {
+        mapfile(map,filename);
+    } else {
+        genmap(map);
+    }
 
     while (stop > 0){
         stop = updatemap(map);
@@ -24,7 +31,7 @@ int main(int argc, char *argv[]){
     }
 
     freemap(map);
-
+    free(filename);
     return 0;
 }
 

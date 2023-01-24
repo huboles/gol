@@ -1,11 +1,12 @@
 #include "gol.h"
 
 
-extern int row,col,step,ascii,color,weight;
+extern int row,col,step,ascii,color,weight,file;
+extern char *filename;
 
 void parseopts(int n, char **args){
     char c;
-    while ((c = getopt(n,args,"hVacy:x:t:w:")) != -1){
+    while ((c = getopt(n,args,"hVacy:x:t:w:f:")) != -1){
         switch (c) {
             case 'h':
                 help();
@@ -28,6 +29,10 @@ void parseopts(int n, char **args){
                 break;
             case 'a':
                 ascii = 1;
+                break;
+            case 'f':
+                file = 1;
+                strcpy(filename,optarg);
                 break;
             case '?':
                 fprintf(stderr, "\t%s\n",optarg);
@@ -53,6 +58,8 @@ void errorcheck(int err){
     }
 
     if ((err & STATE_ERR) != 0) { fprintf(stderr,"ERROR: Could not determine cell state\n"); }
+
+    if ((err & FILE_ERR) != 0) { fprintf(stderr,"ERROR: Could not open file\n"); }
 
     exit(err);
 }

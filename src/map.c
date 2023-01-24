@@ -17,10 +17,43 @@ void genmap(struct map map){
     return;
 }
 
+void mapfile(struct map map, char *file){
+    FILE *fp = fopen(file, "r");
+    if (!fp) errorcheck(FILE_ERR);
+    
+    int r = 0;
+    int c = 0;
+    char x = ' ';
+
+    while ((x = getc(fp)) != EOF){
+        /* exit if more rows than in map */
+        if (r >= row) { break; }
+
+        /* spaces are dead, anything else alive */
+        if (x == ' ') { 
+            map.line[r].cell[c].state = DEAD;
+        } else if (c < col) {
+            map.line[r].cell[c].state = ALIVE;
+        }
+
+        /* move down a row and reset columns at newlines and column limits */
+        if (x == '\n' || c >= col ) { 
+            map.line[r].cell[c].state = DEAD;
+            r++,c=0; 
+        }
+
+        c++;
+    }
+
+    fclose(fp);
+    return;
+}
+
 int updatemap(struct map map){
     int n = 0;
     struct map tmp = newmap();
 
+    /* non edges */
     for (int r = 0; r < row-1; r++){
         for(int c = 0; c < col-1; c++){
             int state = checkstate(map,r,c);
@@ -31,6 +64,7 @@ int updatemap(struct map map){
         }
     }
 
+    /* left/right side */
     for (int r = 0; r < row -1; r++){
         int state = checkstate(map,r,0);
         tmp.line[r].cell[col-1].state = state;
@@ -39,6 +73,7 @@ int updatemap(struct map map){
         if (state > DEAD){ n++; }
     }
 
+    /* top/bottom */
     for (int c = 0; c < col -1; c++){
         int state = checkstate(map,0,c);
         tmp.line[row-1].cell[c].state = state;
@@ -47,6 +82,7 @@ int updatemap(struct map map){
         if (state > DEAD){ n++; }
     }
 
+    /* copy to map */
     for(int r = 0; r < row; r++){
         for (int c = 0; c < col; c++){
             map.line[r].cell[c] = tmp.line[r].cell[c];
