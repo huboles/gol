@@ -4,6 +4,6 @@
 !LICENSE
 !Makefile
 !src/
-!test/
+!examples/*
 !*.c
 !*.h
