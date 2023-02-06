@@ -2,7 +2,7 @@
 
 extern int row,col,weight;
 
-void genmap(struct map map){
+void genmap(MAP map){
     int rnd = 0;
     for (int r = 0; r < row; r++){
         for (int c = 0; c < col; c++){
@@ -17,7 +17,7 @@ void genmap(struct map map){
     return;
 }
 
-void mapfile(struct map map, char *file){
+void mapfile(MAP map, char *file){
     FILE *fp = fopen(file, "r");
     if (!fp) errorcheck(FILE_ERR);
     
@@ -49,9 +49,8 @@ void mapfile(struct map map, char *file){
     return;
 }
 
-int updatemap(struct map map){
-    int n = 0;
-    struct map tmp = newmap();
+void updatemap(MAP map){
+    MAP tmp = newmap();
 
     /* non edges */
     for (int r = 0; r < row-1; r++){
@@ -60,26 +59,23 @@ int updatemap(struct map map){
             tmp.line[r].cell[c].state = state;
             tmp.line[r].cell[c].cellchar = statechar(state);
             strncpy(tmp.line[r].cell[c].pixel,statecell(state),4);
-            if (state > DEAD){ n++; }
         }
     }
 
     /* left/right side */
-    for (int r = 0; r < row -1; r++){
+    for (int r = 0; r < row - 1; r++){
         int state = checkstate(map,r,0);
         tmp.line[r].cell[col-1].state = state;
         tmp.line[r].cell[col-1].cellchar = statechar(state);
         strncpy(tmp.line[r].cell[col-1].pixel,statecell(state),4);
-        if (state > DEAD){ n++; }
     }
 
-    /* top/bottom */
-    for (int c = 0; c < col -1; c++){
+    /* top/bottom row */
+    for (int c = 0; c < col - 1; c++){
         int state = checkstate(map,0,c);
         tmp.line[row-1].cell[c].state = state;
         tmp.line[row-1].cell[c].cellchar = statechar(state);
         strncpy(tmp.line[row-1].cell[c].pixel,statecell(state),4);
-        if (state > DEAD){ n++; }
     }
 
     /* copy to map */
@@ -89,10 +85,10 @@ int updatemap(struct map map){
         }
     }
 
-    return n;
+    return;
 }
 
-int checkstate(struct map map,int r, int c){
+int checkstate(MAP map,int r, int c){
     int state = 0;
     int n = numneighbor(map, r, c);
 
@@ -138,58 +134,38 @@ char *statecell(int state){
 }
 
 
-int numneighbor(struct map map, int r, int c){
+int numneighbor(MAP map, int r, int c){
     int n = 0;
     /* non-edges */
     if (r > 0 && r < row - 1 && c > 0 && c < col - 1){
-        if (map.line[r+1].cell[c+1].state > DEAD) n ++;
-        if (map.line[r].cell[c+1].state > DEAD) n ++;
-        if (map.line[r-1].cell[c+1].state > DEAD) n ++;
-        if (map.line[r+1].cell[c].state > DEAD) n ++;
-        if (map.line[r-1].cell[c].state > DEAD) n ++;
-        if (map.line[r+1].cell[c-1].state > DEAD) n ++;
-        if (map.line[r].cell[c-1].state > DEAD) n ++;
-        if (map.line[r-1].cell[c-1].state > DEAD) n ++;
-    /* top row */
+        if (map.line[r+1].cell[c+1].state > DEAD) n++;
+        if (map.line[r].cell[c+1].state > DEAD) n++;
+        if (map.line[r-1].cell[c+1].state > DEAD) n++;
+        if (map.line[r+1].cell[c].state > DEAD) n++;
+        if (map.line[r-1].cell[c].state > DEAD) n++;
+        if (map.line[r+1].cell[c-1].state > DEAD) n++;
+        if (map.line[r].cell[c-1].state > DEAD) n++;
+        if (map.line[r-1].cell[c-1].state > DEAD) n++;
+    /* top/bottom row */
     } else if (r == 0 && c > 0 && c < col){
-        if (map.line[r+1].cell[c+1].state > DEAD) n ++;
-        if (map.line[r].cell[c+1].state > DEAD) n ++;
-        if (map.line[row-1].cell[c+1].state > DEAD) n ++;
-        if (map.line[r+1].cell[c].state > DEAD) n ++;
-        if (map.line[row-1].cell[c].state > DEAD) n ++;
-        if (map.line[r+1].cell[c-1].state > DEAD) n ++;
-        if (map.line[r].cell[c-1].state > DEAD) n ++;
-        if (map.line[row-1].cell[c-1].state > DEAD) n ++;
-    /* bottom row */
-    } else if (r == row - 1 && c > 0 && c < col){
-        if (map.line[0].cell[c+1].state > DEAD) n ++;
-        if (map.line[r].cell[c+1].state > DEAD) n ++;
-        if (map.line[r-1].cell[c+1].state > DEAD) n ++;
-        if (map.line[0].cell[c].state > DEAD) n ++;
-        if (map.line[r-1].cell[c].state > DEAD) n ++;
-        if (map.line[0].cell[c-1].state > DEAD) n ++;
-        if (map.line[r].cell[c-1].state > DEAD) n ++;
-        if (map.line[r-1].cell[c-1].state > DEAD) n ++;
-    /* left side */
+        if (map.line[r+1].cell[c+1].state > DEAD) n++;
+        if (map.line[r].cell[c+1].state > DEAD) n++;
+        if (map.line[row-2].cell[c+1].state > DEAD) n++;
+        if (map.line[r+1].cell[c].state > DEAD) n++;
+        if (map.line[row-2].cell[c].state > DEAD) n++;
+        if (map.line[r+1].cell[c-1].state > DEAD) n++;
+        if (map.line[r].cell[c-1].state > DEAD) n++;
+        if (map.line[row-2].cell[c-1].state > DEAD) n++;
+    /* left/right side */
     } else if (r > 0 && r < row && c == 0){
-        if (map.line[r+1].cell[c+1].state > DEAD) n ++;
-        if (map.line[r].cell[c+1].state > DEAD) n ++;
-        if (map.line[r-1].cell[c+1].state > DEAD) n ++;
-        if (map.line[r+1].cell[c].state > DEAD) n ++;
-        if (map.line[r-1].cell[c].state > DEAD) n ++;
-        if (map.line[r+1].cell[col-1].state > DEAD) n ++;
-        if (map.line[r].cell[col-1].state > DEAD) n ++;
-        if (map.line[r-1].cell[col-1].state > DEAD) n ++;
-    /* right side */
-    } else if (r > 0 && r < row && c == col - 1){
-        if (map.line[r+1].cell[0].state > DEAD) n ++;
-        if (map.line[r].cell[0].state > DEAD) n ++;
-        if (map.line[r-1].cell[0].state > DEAD) n ++;
-        if (map.line[r+1].cell[c].state > DEAD) n ++;
-        if (map.line[r-1].cell[c].state > DEAD) n ++;
-        if (map.line[r+1].cell[c-1].state > DEAD) n ++;
-        if (map.line[r].cell[c-1].state > DEAD) n ++;
-        if (map.line[r-1].cell[c-1].state > DEAD) n ++;
+        if (map.line[r+1].cell[c+1].state > DEAD) n++;
+        if (map.line[r].cell[c+1].state > DEAD) n++;
+        if (map.line[r-1].cell[c+1].state > DEAD) n++;
+        if (map.line[r+1].cell[c].state > DEAD) n++;
+        if (map.line[r-1].cell[c].state > DEAD) n++;
+        if (map.line[r+1].cell[col-2].state > DEAD) n++;
+        if (map.line[r].cell[col-2].state > DEAD) n++;
+        if (map.line[r-1].cell[col-2].state > DEAD) n++;
     }
     return n;
 }

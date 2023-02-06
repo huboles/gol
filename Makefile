@@ -4,13 +4,17 @@ VER ?= 0.2.2
 SHELL = /bin/bash
 
 DESTDIR ?= 
-
 ETCDIR ?= $(DESTDIR)/etc/$(NAME)
 USRDIR ?= $(DESTDIR)/usr
-BINDIR ?= $(USRDIR)/bin
-LIBDIR ?= $(USRDIR)/lib
-MANDIR ?= $(USRDIR)/share/man/man1
-DOCDIR ?= $(USRDIR)/share/doc/$(NAME)
+
+PREFIX ?= $(USRDIR)
+BINDIR ?= $(PREFIX)/bin
+LIBDIR ?= $(PREFIX)/lib
+SHAREDIR ?= $(PREFIX)/share
+INCLUDE ?= $(PREFIX)/include
+MANDIR ?= $(SHAREDIR)/man
+MAN1DIR ?= $(MANDIR)/man1
+DOCDIR ?= $(PREFIX)/doc/$(NAME)
 
 SRCDIR ?= ./src
 OBJDIR ?= ./obj
@@ -20,6 +24,10 @@ BIN ?= $(BUILD)/$(NAME)
 SRC ?= $(wildcard $(SRCDIR)/*.c) 
 HDR ?= $(wildcard $(SRCDIR)/*.h)
 OBJ ?= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
+LIBNAME ?= lib$(NAME)
+LIB ?= $(BUILD)/$(LIBNAME).so
+STATIC ?= $(BUILD)/$(LIBNAME).a
+
 
 TAR ?= $(BUILD)/$(NAME)-$(VER).tar.gz
 
@@ -27,19 +35,32 @@ MAN ?= $(SRCDIR)/$(NAME).1
 MANPAGE ?= $(patsubst $(SRCDIR)/%.1,$(BUILD)/%.1.gz,$(MAN))
 DOC ?= README LICENSE
 
-CC ?= gcc
-ZIP ?= gzip
+CC = gcc
+AR = ar
+LD = ld
+ZIP = gzip
+RM = rm -f
+
 CFLAGS += -O2 -pipe
-WARNINGS ?= -Wall -Wextra -Wpedantic
-CPPFLAGS += -I $(SRCDIR)
-LDFLAGS += -L $(SRCDIR)
+CPPFLAGS += -I$(SRCDIR) -I$(BUILD)
+LDFLAGS += -L$(SRCDIR) -L$(BUILD)
 LDLIBS +=
-FLAGS ?= $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(LDFLAGS) $(LDLIBS)
+WARNINGS ?= -Wall -Wextra -Wpedantic
+
+FLAGS += $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(LDFLAGS) $(LDLIBS)
+DEBUGFLAGS += $(WARNINGS) $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) -ggdb -Og -pipe
+RELEASEFLAGS = $(CPPFLAGS) $(LDFLAGS) $(LDLIBS) -O3 -pipe -DNDEBUG -DDONT_USE_VOL
 
 all: $(BIN)
 
-release: CFLAGS = -O3 -pipe -DNDEBUG -DDONT_USE_VOL
-release: $(BIN)
+lib: $(LIB)
+
+static: $(STATIC)
+
+release: | $(BUILD)
+	$(MAKE) clean
+	$(CC) $(SRC) $(RELEASEFLAGS) -o $(BIN)-$(VER)
+	$(MAKE) tar
 
 install: $(BIN) $(MANPAGE) $(DOC)
 	-mkdir -p $(BINDIR)
@@ -51,28 +72,57 @@ install: $(BIN) $(MANPAGE) $(DOC)
 	-mkdir -p $(DOCDIR)
 	install -CDm 644 -t $(DOCDIR) $(DOC) 
 
-uninstall:
-	-rm -rf $(BINDIR)/$(BIN) $(MANDIR)/$(MANPAGE) $(DOCDIR)
+install_lib:
+	-mkdir -p $(LIBDIR)
+	cp $(LIB) $(LIBDIR)
+	chmod 755 $(LIBDIR)/$(patsubst $(BUILD)/%,%,$(LIB))
+	-mkdir -p $(INCLUDE)
+	cp $(HDR) $(INCLUDE)
+	chmod 644 $(INCLUDE)/$(patsubst $(SRCDIR)/%,%,$(HDR))
 
-tar: $(SRC) $(HDR) $(MAN) $(DOC)
+install_static:
+	-mkdir -p $(LIBDIR)
+	cp $(STATIC) $(LIBDIR)
+	chmod 755 $(LIBDIR)/$(patsubst $(BUILD)/%,%,$(STATIC))
+	-mkdir -p $(INCLUDE)
+	cp $(HDR) $(INCLUDE)
+	chmod 644 $(INCLUDE)/$(patsubst $(SRCDIR)/%,%,$(HDR))
+
+uninstall:
+	$(RM) -r $(BINDIR)/$(patsubst $(BUILD)/%,%,$(BIN)) 
+	$(RM) -r $(MANDIR)/$(patsubst $(BUILD)/%,%,$(MANPAGE)) 
+	$(RM) -r $(INCLUDE)/$(patsubst $(SRC)/%,%,$(HDR))
+	$(RM) -r $(LIBDIR)/$(patsubst $(BUILD)/%,%,$(LIB))
+	$(RM) -r $(LIBDIR)/$(patsubst $(BUILD)/%,%,$(STATIC))
+	$(RM) -r $(DOCDIR)
+
+tar: $(SRC) $(HDR) $(MAN) $(DOC) | $(BUILD)
 	tar -I $(ZIP) -cvf $(TAR) $(SRC) $(HDR) $(MAN) $(DOC)
 
-$(BIN): $(OBJ)
+$(BIN): $(OBJ) | $(BUILD)
 	$(CC) $(OBJ) $(FLAGS) -o $(BIN)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c $(HDR)  
+$(LIB): $(SRC) $(HDR) | $(BUILD)
+	$(CC) $(SRC) $(FLAGS) -fPIC -shared -lc -o $(LIB)
+
+$(STATIC): $(OBJ) | $(BUILD)
+	$(AR) rcs $(STATIC) $(OBJ)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(HDR) | $(OBJDIR)
 	$(CC) -c $(FLAGS) $< -o $@
 
 clean:
-	-rm -f $(BUILD)/* $(OBJDIR)/*
+	$(RM) $(BUILD)/* $(OBJDIR)/*
 
-debug: $(SRC)
-	$(CC) $(SRC) $(FLAGS) -ggdb3 -Og -pipe -o $(BIN)-debug
+debug: | $(BUILD)
+	$(MAKE) clean
+	$(CC) $(SRC) $(DEBUGFLAGS) -o $(BIN)-debug
 
-$(MANPAGE): $(MAN)
+$(MANPAGE): $(MAN) | $(BUILD)
 	$(ZIP) -c $(MAN) > $(MANPAGE)
 
-$(SRCDIR) $(OBJDIR) $(BUILDIR):
+$(SRCDIR) $(OBJDIR) $(BUILD):
 	mkdir $@
 
-.PHONY: all release clean install tar uninstall debug test
+.PHONY: all release lib install_lib static install_static tar clean install uninstall debug
+

@@ -11,8 +11,7 @@ struct map newmap(void){
     return tmp;
 }
 
-
-void freemap(struct map map){
+void freemap(MAP map){
     for (int r = 0; r < row; r++){
         for (int c = 0; c < col; c++){
             free(map.line[r].cell);

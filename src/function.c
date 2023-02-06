@@ -1,6 +1,5 @@
 #include "gol.h"
 
-
 extern int row,col,step,ascii,color,weight,file;
 extern char *filename;
 
@@ -44,22 +43,16 @@ void parseopts(int n, char **args){
     return;
 }
 
-void errorcheck(int err){
+void errorcheck(ERROR err){
     if (errno != 0) {
         fprintf(stderr,"\nERROR: %s\n",strerror(errno));
-        exit(EXIT_FAILURE);
+        err |= SYS_ERR;
     } 
 
     if (err == NO_ERR) { return; }
-
-    if ((err & FLAG_ERR) != 0) {
-        fprintf(stderr,"ERROR: Unknown Flag\n");
-        printf("Use -h for help");
-    }
-
-    if ((err & STATE_ERR) != 0) { fprintf(stderr,"ERROR: Could not determine cell state\n"); }
-
-    if ((err & FILE_ERR) != 0) { fprintf(stderr,"ERROR: Could not open file\n"); }
+    if ((err & FLAG_ERR) != 0) fprintf(stderr,"ERROR: Unknown Flag\n");
+    if ((err & STATE_ERR) != 0) fprintf(stderr,"ERROR: Could not determine cell state\n"); 
+    if ((err & FILE_ERR) != 0) fprintf(stderr,"ERROR: Could not open file\n");
 
     exit(err);
 }

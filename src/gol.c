@@ -6,17 +6,14 @@ char *filename;
 int main(int argc, char *argv[]){
     srand(time(NULL));
 
-    int stop = 1;
     row = 30;
     col = 90;
     step = 75000;
-    ascii = 0;
     weight = 5;
-    file = 0;
 
     filename = malloc(sizeof(char) * MAXLINE);
     parseopts(argc,argv);
-    struct map map = newmap();
+    MAP map = newmap();
 
     if (file) {
         mapfile(map,filename);
@@ -24,8 +21,8 @@ int main(int argc, char *argv[]){
         genmap(map);
     }
 
-    while (stop > 0){
-        stop = updatemap(map);
+    while (1){
+        updatemap(map);
         printdisplay(map);
         usleep(step);
     }
@@ -36,14 +33,14 @@ int main(int argc, char *argv[]){
 }
 
 
-void printdisplay(struct map map){
+void printdisplay(MAP map){
     printf("%s",CLEAR);
     for (int r = 0; r < row; r++){
         for (int c = 0; c < col; c++){
-            if (ascii == 0){
-                printf("%4s",map.line[r].cell[c].pixel);
-            } else {
+            if (ascii){
                 printf("%c",map.line[r].cell[c].cellchar);
+            } else {
+                printf("%4s",map.line[r].cell[c].pixel);
             }
         }
         putc('\n',stdout);

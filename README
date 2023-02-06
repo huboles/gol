@@ -13,8 +13,8 @@ Installation:
 
 Download and extract source:
     $ curl "https://download.huck.website/gol-[VERSION].tar.gz > gol.tar.gz
-    $ tar -xzvf gol.tar.gz
-    $ cd gol.tar.gz
+    $ tar -xzvf gol.tar.gz >
+    $ cd gol
 
 Build and install:
     $ make && sudo make install
@@ -30,5 +30,11 @@ Usage:
         $ gol -a
     Change initial distribution weight:
         $ gol -w [INT]
-E
+    Change time interval between steps:
+        $ gol -t [ms]
+    Use a file as input:
+        $gol -f [file]
+    
+When using a file as input, gol uses any non-whitespace character as a live cell. If the given
+file is larger than the map, gol will simply fit what it can on the map.
 
