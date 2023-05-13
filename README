@@ -1,40 +1,30 @@
-gol - Conway's Game Of Life
+# gol - conway's game of life
 
-Version: 0.2.2
+version: 0.2.2
 
-gol is an implementation of Conway's Game of life that runs in a terminal emulator.
-There are two states: alive and dead, and each generation uses the number of neighbors
-to determine the state of each cell. A dead cell surrounded by exactly 3 live cells will
-spawn. A live cell will stay alive if it is surrounded by 2 or 3 other cells, otherwise it
-dies. Each generation uses the last generations map to create the next map.
+gol is an implementation of conway's game of life that runs in a terminal emulator.
+there are two states: alive and dead, and each generation uses the number of neighbors
+to determine the state of each cell. a dead cell surrounded by exactly 3 live cells will
+spawn. a live cell will stay alive if it is surrounded by 2 or 3 other cells, otherwise it
+dies. each generation uses the last generations map to create the next map.
 
-
-Installation:
-
-Download and extract source:
-    $ curl "https://download.huck.website/gol-[VERSION].tar.gz > gol.tar.gz
-    $ tar -xzvf gol.tar.gz >
-    $ cd gol
-
-Build and install:
+### build and install:
     $ make && sudo make install
 
-
-Usage:
-
-    Run gol with base parameters:
+### usage:
+    run gol with base parameters:
         $ gol
-    Change size of map:
-        $ gol -x [COLUMNS] -y [ROWS]
-    Use ascii only mode:
+    change size of map:
+        $ gol -x [columns] -y [rows]
+    use ascii only mode:
         $ gol -a
-    Change initial distribution weight:
-        $ gol -w [INT]
-    Change time interval between steps:
+    change initial distribution weight:
+        $ gol -w [int]
+    change time interval between steps:
         $ gol -t [ms]
-    Use a file as input:
+    use a file as input:
         $gol -f [file]
     
-When using a file as input, gol uses any non-whitespace character as a live cell. If the given
+when using a file as input, gol uses any non-whitespace character as a live cell. if the given
 file is larger than the map, gol will simply fit what it can on the map.
 
