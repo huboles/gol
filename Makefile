@@ -3,7 +3,7 @@ VER ?= 0.2.2
 
 SHELL = /bin/bash
 
-DESTDIR ?= 
+DESTDIR ?=
 ETCDIR ?= $(DESTDIR)/etc/$(NAME)
 USRDIR ?= $(DESTDIR)/usr
 
@@ -21,7 +21,7 @@ OBJDIR ?= ./obj
 BUILD ?= ./build
 
 BIN ?= $(BUILD)/$(NAME)
-SRC ?= $(wildcard $(SRCDIR)/*.c) 
+SRC ?= $(wildcard $(SRCDIR)/*.c)
 HDR ?= $(wildcard $(SRCDIR)/*.h)
 OBJ ?= $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 LIBNAME ?= lib$(NAME)
@@ -35,9 +35,6 @@ MAN ?= $(SRCDIR)/$(NAME).1
 MANPAGE ?= $(patsubst $(SRCDIR)/%.1,$(BUILD)/%.1.gz,$(MAN))
 DOC ?= README LICENSE
 
-CC = gcc
-AR = ar
-LD = ld
 ZIP = gzip
 RM = rm -f
 
@@ -70,7 +67,7 @@ install: $(BIN) $(MANPAGE) $(DOC)
 	cp $(MANPAGE) $(MANDIR)
 	chmod 644 $(MANDIR)/$(patsubst $(BUILD)/%,%,$(MANPAGE))
 	-mkdir -p $(DOCDIR)
-	install -CDm 644 -t $(DOCDIR) $(DOC) 
+	install -CDm 644 -t $(DOCDIR) $(DOC)
 
 install_lib:
 	-mkdir -p $(LIBDIR)
@@ -89,8 +86,8 @@ install_static:
 	chmod 644 $(INCLUDE)/$(patsubst $(SRCDIR)/%,%,$(HDR))
 
 uninstall:
-	$(RM) -r $(BINDIR)/$(patsubst $(BUILD)/%,%,$(BIN)) 
-	$(RM) -r $(MANDIR)/$(patsubst $(BUILD)/%,%,$(MANPAGE)) 
+	$(RM) -r $(BINDIR)/$(patsubst $(BUILD)/%,%,$(BIN))
+	$(RM) -r $(MANDIR)/$(patsubst $(BUILD)/%,%,$(MANPAGE))
 	$(RM) -r $(INCLUDE)/$(patsubst $(SRC)/%,%,$(HDR))
 	$(RM) -r $(LIBDIR)/$(patsubst $(BUILD)/%,%,$(LIB))
 	$(RM) -r $(LIBDIR)/$(patsubst $(BUILD)/%,%,$(STATIC))
@@ -125,4 +122,3 @@ $(SRCDIR) $(OBJDIR) $(BUILD):
 	mkdir $@
 
 .PHONY: all release lib install_lib static install_static tar clean install uninstall debug
-
