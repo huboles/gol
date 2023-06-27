@@ -40,7 +40,7 @@ RM = rm -f
 
 CFLAGS += -O2 -pipe
 CPPFLAGS += -I$(SRCDIR) -I$(BUILD)
-LDFLAGS += -L$(SRCDIR) -L$(BUILD)
+LDFLAGS +=
 LDLIBS +=
 WARNINGS ?= -Wall -Wextra -Wpedantic
 
